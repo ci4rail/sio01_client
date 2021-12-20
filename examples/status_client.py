@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-""" Example of resolving a service with a known name """
+""" Example that shows how to get the status of a SIO01 """
 
 import logging
 import sys
