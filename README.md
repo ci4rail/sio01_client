@@ -36,3 +36,10 @@ On the SIO01, configure parameter `loc-srv` to the IP address of the machine exe
 Where `device-id` is the id set in the SIO01 via the persistent parameter `device-id`.
 
 Note: The machine executing `status_client.py` must be in the same network as the SIO01.
+
+# See also
+- [io4edge-cli](https://github.com/ci4rail/io4edge-cli): Command line tool to manage io4edge devices, such as the SIO01. Important features are:
+    - Identify the currently running firmware
+    - Load new firmware
+    - Identify HW (name, revision, serial number)
+    - Restart device
