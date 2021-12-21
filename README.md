@@ -1,5 +1,5 @@
-# sio01_client
-Client examples and protobuf files for SIO01 device
+# sio01_host
+Host examples and protobuf files for SIO01 device
 
 ## Protobuf definitions
 The `proto` folder contains
@@ -9,8 +9,8 @@ The `proto` folder contains
 ## Examples
 
 The `examples` folder contains some simple examples in python:
-* [location_server](examples/location_server.py): Receive location messages from SIO01 devices and print them to stdout.
-* [status_client](examples/status_client.py): Send a status request to SIO01 device and print result.
+* [location_server](examples/location_server.py): A TCP server that receives location messages from SIO01 devices and prints the location.
+* [status_client](examples/status_client.py): A TCP client that sends a status request to SIO01 device and prints the result.
 
 ### Usage
 
