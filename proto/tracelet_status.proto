@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package easylocate;
+
+// Status Interface
+// - Tracelet is TCP server
+// - Consumer is TCP client
+//
+// Format of TCP messages: Same as for LocationReport
+
+// StatusRequest is sent from the monitoring system (consumer) to Tracelet via
+// TCP port
+message StatusRequest {
+  // id of the request, will be echoed in StatusResponse
+  int32 id = 1;
+}
+
+// StatusResponse is sent from Tracelet to the monitoring system (consumer) via
+// TCP port in response to StatusRequest
+message StatusResponse {
+  // id from StatusRequest
+  int32 id = 1;
+  // number of tracelet power Ups
+  int32 power_up_count = 2;
+  // Tracelet has a valid position within easylocate system
+  bool has_position = 3;
+  // Tracelet has connection to location server
+  bool has_server_connection = 4;
+  // Tracelet has a valid time
+  bool has_time = 5;
+  // Easylocate module up and running
+  bool eloc_module_status_ok = 6;
+}

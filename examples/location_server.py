@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+
+import socketserver
+import threading
+import time
+import datetime
+import tracelet_location_pb2
+import struct
+
+
+class MyTCPHandler(socketserver.BaseRequestHandler):
+    """
+    The RequestHandler class for our server.
+
+    It is instantiated once per connection to the server, and must
+    override the handle() method to implement communication to the
+    client.
+    """
+
+    def handle(self):
+        print('new handler %s\n' % threading.current_thread().name)
+        while True:
+            loc = self.read_fstream()
+            print(
+                f'{loc.tracelet_id} {loc.receive_ts.ToDatetime()} {loc.x:.2f} {loc.y:.2f} site:{loc.site_id} sign: {loc.location_signature}')
+
+        print('exit handler %s\n' % threading.current_thread().name)
+
+    def read_fstream(self):
+        hdr = self.request.recv(6)
+        if hdr[0:2] == b'\xfe\xed':
+            len = struct.unpack('<L', hdr[2:6])[0]
+            #print(f'len={len} {hdr[0:6]}')
+            proto_data = self.request.recv(len)
+            loc = tracelet_location_pb2.LocationReport()
+            loc.ParseFromString(proto_data)
+            return loc
+        else:
+            raise RuntimeError('bad magic')
+
+
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    pass
+
+
+if __name__ == '__main__':
+    HOST, PORT = '0.0.0.0', 11002
+
+    # Create the server, binding to localhost on port 9999
+    server = ThreadedTCPServer((HOST, PORT), MyTCPHandler)
+
+    # Activate the server; this will keep running until you
+    # interrupt the program with Ctrl-C
+    server.serve_forever()
