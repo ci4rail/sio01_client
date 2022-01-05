@@ -44,5 +44,10 @@ func NewInstance(deviceID string, statusServerPort int, locationServerAddress st
 	}
 	e.locationGenerator()
 
+	err = e.statusServer(statusServerPort)
+	if err != nil {
+		return nil, err
+	}
+
 	return e, nil
 }
