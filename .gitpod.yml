@@ -1,0 +1,30 @@
+tasks:
+  - name: pre-commit install
+    before: |
+      echo 'PIP_USER="no"' >~/.bashrc.d/110-fix-pip-user
+      export PIP_USER="no" && pip3 install pre-commit && pre-commit install && pre-commit && git submodule foreach "pre-commit install && pre-commit"
+  - name: install python libs
+    before: |
+      export PIP_USER="no" && pip3 install -r examples/requirements.txt
+  - name: vscode settings
+    # terminal.integrated.localEchoLatencyThreshold disables local echo, which confuses me on, e.g. in gitpod
+    command: |
+      mkdir -p "$PWD/.vscode";
+      cat << 'EOF' > "$PWD/.vscode/settings.json"
+      {
+        "terminal.integrated.localEchoLatencyThreshold": -1
+      }
+      EOF
+  - name: start zsh
+    before: |
+      wget https://github.com/robbyrussell/oh-my-zsh/raw/master/tools/install.sh -O - | zsh
+      git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+    command: |
+      sed -i -e "/ZSH_THEME=/s/robbyrussell/agnoster/" ~/.zshrc
+      sed -i -e "/plugins=/s/git/git zsh-autosuggestions/" ~/.zshrc
+      zsh
+vscode:
+  extensions:
+    - ms-python.python
+    - golang.go
+    - zxh404.vscode-proto3
