@@ -2,8 +2,6 @@
 
 import socketserver
 import threading
-import time
-import datetime
 import tracelet_location_pb2
 import struct
 
@@ -26,12 +24,21 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 
         print('exit handler %s\n' % threading.current_thread().name)
 
+    def rcv_all(self, n):
+        remaining = n
+        buf = bytearray()
+        while remaining > 0:
+            data = self.request.recv(remaining)
+            buf.extend(data)
+            remaining -= len(data)
+        return buf
+
     def read_fstream(self):
-        hdr = self.request.recv(6)
+        hdr = self.rcv_all(6)
         if hdr[0:2] == b'\xfe\xed':
             len = struct.unpack('<L', hdr[2:6])[0]
-            #print(f'len={len} {hdr[0:6]}')
-            proto_data = self.request.recv(len)
+            # print(f'len={len} {hdr[0:6]}')
+            proto_data = self.rcv_all(len)
             loc = tracelet_location_pb2.LocationReport()
             loc.ParseFromString(proto_data)
             return loc
