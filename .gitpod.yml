@@ -3,6 +3,9 @@ tasks:
     before: |
       echo 'PIP_USER="no"' >~/.bashrc.d/110-fix-pip-user
       export PIP_USER="no" && pip3 install pre-commit && pre-commit install && pre-commit && git submodule foreach "pre-commit install && pre-commit"
+  - name: install go tools
+    before: |
+      go get -u golang.org/x/lint/golint
   - name: install python libs
     before: |
       export PIP_USER="no" && pip3 install -r examples/requirements.txt

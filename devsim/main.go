@@ -18,14 +18,14 @@ import (
 	"log"
 	"time"
 
-	"github.com/ci4rail/sio01_host/devsim/internal/firmware"
-	"github.com/ci4rail/sio01_host/devsim/internal/hardware"
-	"github.com/ci4rail/sio01_host/devsim/internal/restart"
-	"github.com/ci4rail/sio01_host/devsim/pkg/version"
 	"github.com/ci4rail/io4edge-client-go/client"
 	api "github.com/ci4rail/io4edge-client-go/core/v1alpha2"
 	"github.com/ci4rail/io4edge-client-go/transport"
 	"github.com/ci4rail/io4edge-client-go/transport/socket"
+	"github.com/ci4rail/sio01_host/devsim/internal/firmware"
+	"github.com/ci4rail/sio01_host/devsim/internal/hardware"
+	"github.com/ci4rail/sio01_host/devsim/internal/restart"
+	"github.com/ci4rail/sio01_host/devsim/pkg/version"
 )
 
 var (
