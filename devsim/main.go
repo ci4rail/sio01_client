@@ -14,90 +14,85 @@ limitations under the License.
 package main
 
 import (
-	"io"
 	"log"
 	"time"
 
-	"github.com/ci4rail/io4edge-client-go/client"
-	api "github.com/ci4rail/io4edge-client-go/core/v1alpha2"
-	"github.com/ci4rail/io4edge-client-go/transport"
-	"github.com/ci4rail/io4edge-client-go/transport/socket"
-	"github.com/ci4rail/sio01_host/devsim/internal/firmware"
-	"github.com/ci4rail/sio01_host/devsim/internal/hardware"
-	"github.com/ci4rail/sio01_host/devsim/internal/restart"
+	"github.com/ci4rail/sio01_host/devsim/internal/eloc"
 	"github.com/ci4rail/sio01_host/devsim/pkg/version"
 )
 
-var (
-	port = ":9999"
-)
-
 func main() {
-	log.Printf("io4edge-devsim version: %s listen at port %s\n", version.Version, port)
+	log.Printf("devsim version: %s\n", version.Version)
 
-	listener, err := socket.NewSocketListener(port)
-	if err != nil {
-		log.Fatalf("Failed to create listener: %s", err)
-	}
+	_, err := eloc.NewInstance("devsim", 9999, "192.168.0.1:1234")
 
 	if err != nil {
-		log.Fatalf("Failed to create devproto: %s", err)
+		log.Fatalf("Failed to create eloc instance: %s", err)
 	}
-	for {
-		conn, err := socket.WaitForSocketConnect(listener)
-		if err != nil {
-			log.Fatalf("Failed to wait for connection: %s", err)
-		}
-		log.Printf("new connection!\n")
+	time.Sleep(20 * time.Second)
+	// listener, err := socket.NewSocketListener(port)
+	// if err != nil {
+	// 	log.Fatalf("Failed to create listener: %s", err)
+	// }
 
-		ms := transport.NewFramedStreamFromTransport(conn)
-		ch := client.NewChannel(ms)
+	// if err != nil {
+	// 	log.Fatalf("Failed to create devproto: %s", err)
+	// }
+	// for {
+	// 	conn, err := socket.WaitForSocketConnect(listener)
+	// 	if err != nil {
+	// 		log.Fatalf("Failed to wait for connection: %s", err)
+	// 	}
+	// 	log.Printf("new connection!\n")
 
-		serveConnection(ch)
-		time.Sleep(4 * time.Second) // simulate reboot
-	}
+	// 	ms := transport.NewFramedStreamFromTransport(conn)
+	// 	ch := client.NewChannel(ms)
+
+	// 	serveConnection(ch)
+	// 	time.Sleep(4 * time.Second) // simulate reboot
+	// }
 }
 
-func serveConnection(ch *client.Channel) {
-	defer ch.Close()
+// func serveConnection(ch *client.Channel) {
+// 	defer ch.Close()
 
-	for {
-		c := &api.CoreCommand{}
-		err := ch.ReadMessage(c, 0)
-		if err != nil {
-			if err == io.EOF {
-				return
-			}
-			log.Fatalf("Failed to read: %s", err)
-		}
+// 	for {
+// 		c := &api.CoreCommand{}
+// 		err := ch.ReadMessage(c, 0)
+// 		if err != nil {
+// 			if err == io.EOF {
+// 				return
+// 			}
+// 			log.Fatalf("Failed to read: %s", err)
+// 		}
 
-		var res *api.CoreResponse
-		dorestart := false
-		switch c.Id {
-		case api.CommandId_IDENTIFY_FIRMWARE:
-			res = firmware.IdentifyFirmware()
-		case api.CommandId_IDENTIFY_HARDWARE:
-			res = hardware.IdentifyHardware()
-		case api.CommandId_PROGRAM_HARDWARE_IDENTIFICATION:
-			res = hardware.ProgramHardwareIdentification(c.GetProgramHardwareIdentification())
-		case api.CommandId_LOAD_FIRMWARE_CHUNK:
-			res, dorestart = firmware.LoadFirmwareChunk(c.GetLoadFirmwareChunk())
-		case api.CommandId_RESTART:
-			res, dorestart = restart.Restart()
-		default:
-			res = &api.CoreResponse{
-				Id:     c.Id,
-				Status: api.Status_UNKNOWN_COMMAND,
-			}
-		}
+// 		var res *api.CoreResponse
+// 		dorestart := false
+// 		switch c.Id {
+// 		case api.CommandId_IDENTIFY_FIRMWARE:
+// 			res = firmware.IdentifyFirmware()
+// 		case api.CommandId_IDENTIFY_HARDWARE:
+// 			res = hardware.IdentifyHardware()
+// 		case api.CommandId_PROGRAM_HARDWARE_IDENTIFICATION:
+// 			res = hardware.ProgramHardwareIdentification(c.GetProgramHardwareIdentification())
+// 		case api.CommandId_LOAD_FIRMWARE_CHUNK:
+// 			res, dorestart = firmware.LoadFirmwareChunk(c.GetLoadFirmwareChunk())
+// 		case api.CommandId_RESTART:
+// 			res, dorestart = restart.Restart()
+// 		default:
+// 			res = &api.CoreResponse{
+// 				Id:     c.Id,
+// 				Status: api.Status_UNKNOWN_COMMAND,
+// 			}
+// 		}
 
-		err = ch.WriteMessage(res)
-		if err != nil {
-			log.Printf("Failed to write: %s", err)
-			return
-		}
-		if dorestart {
-			return
-		}
-	}
-}
+// 		err = ch.WriteMessage(res)
+// 		if err != nil {
+// 			log.Printf("Failed to write: %s", err)
+// 			return
+// 		}
+// 		if dorestart {
+// 			return
+// 		}
+// 	}
+// }
