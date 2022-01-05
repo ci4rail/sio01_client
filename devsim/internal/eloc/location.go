@@ -16,6 +16,7 @@ package eloc
 import (
 	"errors"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/ci4rail/io4edge-client-go/client"
@@ -25,27 +26,41 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
+type location struct {
+	havePos bool
+	x       float64
+	y       float64
+	z       float64
+}
+
 func (e *Eloc) locationClient(locationServerAddress string) error {
 	go func() {
 		for {
+			e.haveServerConnection = false
 			ch, err := channelFromSocketAddress(locationServerAddress)
 
 			if err == nil {
+				defer ch.Close()
+				e.haveServerConnection = true
+
 				for {
+					// Wait for location report
+					loc := <-e.loc
+
 					m := &pb.LocationReport{
 						ReceiveTs:         timestamppb.Now(),
 						TraceletId:        e.deviceID,
-						X:                 0.01,
-						Y:                 0.02,
+						X:                 loc.x,
+						Y:                 loc.y,
+						Z:                 loc.z,
 						SiteId:            12345,
 						LocationSignature: 0x12345678ABCDEF,
 					}
 					err := ch.WriteMessage(m)
 					if err != nil {
-						fmt.Errorf("WriteMessage failed", err)
+						log.Printf("WriteMessage failed,  %v\n", err)
 						break
 					}
-					time.Sleep(1000 * time.Millisecond)
 				}
 			}
 
@@ -56,6 +71,34 @@ func (e *Eloc) locationClient(locationServerAddress string) error {
 }
 
 func (e *Eloc) locationGenerator() {
+	go func() {
+		loc := &location{x: -100, y: 0, z: 2}
+		stepX := 3.2
+		stepY := 3.2
+
+		for {
+			// simulate "no satlet reception" for x positions >=80
+			loc.havePos = loc.x < 80.0
+			e.havePosition = loc.havePos
+
+			fmt.Printf("loc: %v\n", loc)
+
+			if loc.havePos {
+				e.loc <- *loc // send location to client
+			}
+
+			if loc.y >= 100 || loc.y <= -100 {
+				stepY = -stepY
+			}
+			if loc.x >= 100 || loc.y <= -100 {
+				stepX = -stepX
+			}
+			loc.x += stepX
+			loc.y += stepY
+
+			time.Sleep(1000 * time.Millisecond)
+		}
+	}()
 
 }
 

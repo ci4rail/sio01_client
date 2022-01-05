@@ -22,11 +22,17 @@ type Eloc struct {
 	deviceID                string
 	statusServerMdnsService *mdns.MDNSService
 	statusServerMdnsServer  *mdns.Server
+	loc                     chan location
+	haveServerConnection    bool
+	havePosition            bool
 }
 
 // NewInstance creates a new Easylocate simulator instance
 func NewInstance(deviceID string, statusServerPort int, locationServerAddress string) (*Eloc, error) {
-	e := &Eloc{deviceID: deviceID}
+	e := &Eloc{
+		deviceID: deviceID,
+		loc:      make(chan location),
+	}
 	err := e.startMdns(statusServerPort)
 	if err != nil {
 		return nil, err
@@ -36,6 +42,7 @@ func NewInstance(deviceID string, statusServerPort int, locationServerAddress st
 	if err != nil {
 		return nil, err
 	}
+	e.locationGenerator()
 
 	return e, nil
 }

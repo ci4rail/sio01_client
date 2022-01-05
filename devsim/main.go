@@ -15,7 +15,6 @@ package main
 
 import (
 	"log"
-	"time"
 
 	"github.com/ci4rail/sio01_host/devsim/internal/eloc"
 	"github.com/ci4rail/sio01_host/devsim/pkg/version"
@@ -29,7 +28,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Failed to create eloc instance: %s", err)
 	}
-	time.Sleep(20 * time.Second)
+	select {} // wait until abort
+
 	// listener, err := socket.NewSocketListener(port)
 	// if err != nil {
 	// 	log.Fatalf("Failed to create listener: %s", err)
