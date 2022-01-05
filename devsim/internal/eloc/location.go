@@ -22,6 +22,7 @@ import (
 	"github.com/ci4rail/io4edge-client-go/transport"
 	"github.com/ci4rail/io4edge-client-go/transport/socket"
 	"github.com/ci4rail/sio01_host/devsim/internal/eloc/pb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (e *Eloc) locationClient(locationServerAddress string) error {
@@ -32,9 +33,12 @@ func (e *Eloc) locationClient(locationServerAddress string) error {
 			if err == nil {
 				for {
 					m := &pb.LocationReport{
-						TraceletId: e.deviceID,
-						X:          0.01,
-						Y:          0.02,
+						ReceiveTs:         timestamppb.Now(),
+						TraceletId:        e.deviceID,
+						X:                 0.01,
+						Y:                 0.02,
+						SiteId:            12345,
+						LocationSignature: 0x12345678ABCDEF,
 					}
 					err := ch.WriteMessage(m)
 					if err != nil {
@@ -49,6 +53,10 @@ func (e *Eloc) locationClient(locationServerAddress string) error {
 		}
 	}()
 	return nil
+}
+
+func (e *Eloc) locationGenerator() {
+
 }
 
 func channelFromSocketAddress(address string) (*client.Channel, error) {
