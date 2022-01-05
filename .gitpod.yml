@@ -6,6 +6,7 @@ tasks:
   - name: install go tools
     before: |
       go get -u golang.org/x/lint/golint
+      go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
   - name: install python libs
     before: |
       export PIP_USER="no" && pip3 install -r examples/requirements.txt

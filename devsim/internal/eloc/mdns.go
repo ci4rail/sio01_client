@@ -14,28 +14,26 @@ limitations under the License.
 package eloc
 
 import (
+	"net"
+
 	"github.com/hashicorp/mdns"
 )
 
-// Eloc represents the Easylocate functionality
-type Eloc struct {
-	deviceID                string
-	statusServerMdnsService *mdns.MDNSService
-	statusServerMdnsServer  *mdns.Server
-}
+func (e *Eloc) startMdns(statusServerPort int) error {
+	info := []string{"My awesome service"}
+	ips := []net.IP{[]byte{127, 0, 0, 1}} // TODO: Required for gitpod only???
+	service, err := mdns.NewMDNSService(e.deviceID+"-eloc", "_io4edge-eloc._tcp", "", "", statusServerPort, ips, info)
 
-// NewInstance creates a new Easylocate simulator instance
-func NewInstance(deviceID string, statusServerPort int, locationServerAddress string) (*Eloc, error) {
-	e := &Eloc{deviceID: deviceID}
-	err := e.startMdns(statusServerPort)
 	if err != nil {
-		return nil, err
+		return err
 	}
+	e.statusServerMdnsService = service
 
-	err = e.locationClient(locationServerAddress)
+	// Create the mDNS server
+	server, err := mdns.NewServer(&mdns.Config{Zone: service})
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	return e, nil
+	e.statusServerMdnsServer = server
+	return nil
 }

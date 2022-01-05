@@ -2,10 +2,20 @@ NAME = io4edge-devsim
 BIN_DIR ?= ../../bin
 VERSION ?= $(shell git describe --match=NeVeRmAtCh --always --abbrev=40 --dirty)
 GO_LDFLAGS = -ldflags "-X github.com/ci4rail/sio01_host/devsim/pkg/version.Version=$(VERSION)"
-
-all: test build-io4edge-devsim
+PROTO_DIR=../proto
+PROTO_ELOC_OUT=internal/eloc
+all: proto test build-io4edge-devsim
 
 build: build-io4edge-devsim
+
+proto:
+	mkdir -p ${PROTO_ELOC_OUT}/pb
+	protoc -I=${PROTO_DIR} \
+	  --go_opt=Mtracelet_location.proto=./pb \
+	  --go_opt=Mtracelet_status.proto=./pb \
+	  --go_out=${PROTO_ELOC_OUT} \
+	  ${PROTO_DIR}/tracelet_location.proto \
+	  ${PROTO_DIR}/tracelet_status.proto
 
 build-io4edge-devsim:
 	go mod tidy

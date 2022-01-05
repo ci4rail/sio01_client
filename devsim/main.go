@@ -24,7 +24,7 @@ import (
 func main() {
 	log.Printf("devsim version: %s\n", version.Version)
 
-	_, err := eloc.NewInstance("devsim", 9999, "192.168.0.1:1234")
+	_, err := eloc.NewInstance("devsim", 9999, "127.0.0.1:11002")
 
 	if err != nil {
 		log.Fatalf("Failed to create eloc instance: %s", err)
