@@ -30,18 +30,16 @@ func (e *Eloc) statusServer(port int) error {
 	listener, err := socket.NewSocketListener(fmt.Sprintf(":%d", port))
 
 	if err != nil {
-		log.Fatalf("Failed to create listener: %s", err)
+		log.Printf("Failed to create listener: %s", err)
+		return err
 	}
 
-	if err != nil {
-		log.Fatalf("Failed to create devproto: %s", err)
-	}
 	for {
 		conn, err := socket.WaitForSocketConnect(listener)
 		if err != nil {
 			log.Fatalf("Failed to wait for connection: %s", err)
 		}
-		log.Printf("new connection!\n")
+		log.Printf("statusServer: new connection from %s!\n", conn.RemoteAddr())
 
 		go func(conn *net.TCPConn) {
 			ms := transport.NewFramedStreamFromTransport(conn)
@@ -62,7 +60,8 @@ func (e *Eloc) serveConnection(ch *client.Channel) {
 			if err == io.EOF {
 				return
 			}
-			log.Fatalf("Failed to read: %s", err)
+			log.Printf("serveConnection failed to read: %s", err)
+			return
 		}
 
 		res := &pb.StatusResponse{
@@ -76,7 +75,7 @@ func (e *Eloc) serveConnection(ch *client.Channel) {
 
 		err = ch.WriteMessage(res)
 		if err != nil {
-			log.Printf("Failed to write: %s", err)
+			log.Printf("serveConnection failed to write: %s", err)
 			return
 		}
 	}

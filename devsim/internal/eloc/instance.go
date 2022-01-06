@@ -14,6 +14,8 @@ limitations under the License.
 package eloc
 
 import (
+	"log"
+
 	"github.com/hashicorp/mdns"
 )
 
@@ -28,13 +30,14 @@ type Eloc struct {
 }
 
 // NewInstance creates a new Easylocate simulator instance
-func NewInstance(deviceID string, statusServerPort int, locationServerAddress string) (*Eloc, error) {
+func NewInstance(deviceID string, statusServerPort int, locationServerAddress string, mdnsOnLo bool) (*Eloc, error) {
 	e := &Eloc{
 		deviceID: deviceID,
 		loc:      make(chan location),
 	}
-	err := e.startMdns(statusServerPort)
+	err := e.startMdns(statusServerPort, mdnsOnLo)
 	if err != nil {
+		log.Printf("failed to start mdns: %s", err)
 		return nil, err
 	}
 

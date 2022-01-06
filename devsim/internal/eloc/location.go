@@ -15,7 +15,6 @@ package eloc
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"time"
 
@@ -55,10 +54,13 @@ func (e *Eloc) locationClient(locationServerAddress string) error {
 						Z:                 loc.z,
 						SiteId:            12345,
 						LocationSignature: 0x12345678ABCDEF,
+						CovXx:             11.2,
+						CovXy:             22.4,
+						CovYy:             -33,
 					}
 					err := ch.WriteMessage(m)
 					if err != nil {
-						log.Printf("WriteMessage failed,  %v\n", err)
+						log.Printf("locationClient WriteMessage failed, %v\n", err)
 						break
 					}
 				}
@@ -81,10 +83,17 @@ func (e *Eloc) locationGenerator() {
 			loc.havePos = loc.x < 80.0
 			e.havePosition = loc.havePos
 
-			fmt.Printf("loc: %v\n", loc)
+			log.Printf("locationGenerator: havePos=%t x=%.2f y=%.2f\n", loc.havePos, loc.x, loc.x)
 
 			if loc.havePos {
-				e.loc <- *loc // send location to client
+
+				// send location to client, don't block if client isn't ready
+				select {
+				case e.loc <- *loc:
+				default:
+					log.Printf("locationGenerator: client not ready")
+				}
+
 			}
 
 			if loc.y >= 100 || loc.y <= -100 {

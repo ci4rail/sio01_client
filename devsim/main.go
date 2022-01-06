@@ -14,85 +14,53 @@ limitations under the License.
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/ci4rail/sio01_host/devsim/internal/eloc"
 	"github.com/ci4rail/sio01_host/devsim/pkg/version"
+	"github.com/spf13/cobra"
+)
+
+var (
+	deviceID              string
+	statusServerPort      int
+	locationServerAddress string
+	mdnsOnLo              bool
 )
 
 func main() {
-	log.Printf("devsim version: %s\n", version.Version)
-
-	_, err := eloc.NewInstance("devsim", 9999, "127.0.0.1:11002")
-
-	if err != nil {
-		log.Fatalf("Failed to create eloc instance: %s", err)
-	}
-	select {} // wait until abort
-
-	// listener, err := socket.NewSocketListener(port)
-	// if err != nil {
-	// 	log.Fatalf("Failed to create listener: %s", err)
-	// }
-
-	// if err != nil {
-	// 	log.Fatalf("Failed to create devproto: %s", err)
-	// }
-	// for {
-	// 	conn, err := socket.WaitForSocketConnect(listener)
-	// 	if err != nil {
-	// 		log.Fatalf("Failed to wait for connection: %s", err)
-	// 	}
-	// 	log.Printf("new connection!\n")
-
-	// 	ms := transport.NewFramedStreamFromTransport(conn)
-	// 	ch := client.NewChannel(ms)
-
-	// 	serveConnection(ch)
-	// 	time.Sleep(4 * time.Second) // simulate reboot
-	// }
+	execute()
 }
 
-// func serveConnection(ch *client.Channel) {
-// 	defer ch.Close()
+// rootCmd represents the base command when called without any subcommands
+var rootCmd = &cobra.Command{
+	Use:   "devsim",
+	Short: "tracelet simulator",
+	Long:  `Simulate a tracelet like SIO01`,
+	Run: func(cmd *cobra.Command, args []string) {
+		log.Printf("devsim version: %s\n", version.Version)
 
-// 	for {
-// 		c := &api.CoreCommand{}
-// 		err := ch.ReadMessage(c, 0)
-// 		if err != nil {
-// 			if err == io.EOF {
-// 				return
-// 			}
-// 			log.Fatalf("Failed to read: %s", err)
-// 		}
+		_, err := eloc.NewInstance(deviceID, statusServerPort, locationServerAddress, mdnsOnLo)
 
-// 		var res *api.CoreResponse
-// 		dorestart := false
-// 		switch c.Id {
-// 		case api.CommandId_IDENTIFY_FIRMWARE:
-// 			res = firmware.IdentifyFirmware()
-// 		case api.CommandId_IDENTIFY_HARDWARE:
-// 			res = hardware.IdentifyHardware()
-// 		case api.CommandId_PROGRAM_HARDWARE_IDENTIFICATION:
-// 			res = hardware.ProgramHardwareIdentification(c.GetProgramHardwareIdentification())
-// 		case api.CommandId_LOAD_FIRMWARE_CHUNK:
-// 			res, dorestart = firmware.LoadFirmwareChunk(c.GetLoadFirmwareChunk())
-// 		case api.CommandId_RESTART:
-// 			res, dorestart = restart.Restart()
-// 		default:
-// 			res = &api.CoreResponse{
-// 				Id:     c.Id,
-// 				Status: api.Status_UNKNOWN_COMMAND,
-// 			}
-// 		}
+		if err != nil {
+			log.Fatalf("Failed to create eloc instance: %s", err)
+		}
+		select {} // wait until abort
+	},
+}
 
-// 		err = ch.WriteMessage(res)
-// 		if err != nil {
-// 			log.Printf("Failed to write: %s", err)
-// 			return
-// 		}
-// 		if dorestart {
-// 			return
-// 		}
-// 	}
-// }
+func execute() {
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+}
+
+func init() {
+	rootCmd.PersistentFlags().StringVarP(&deviceID, "dev-id", "d", "devsim", "device id to use")
+	rootCmd.PersistentFlags().IntVarP(&statusServerPort, "stat-port", "s", 10000, "TCP port to use for status server")
+	rootCmd.PersistentFlags().StringVarP(&locationServerAddress, "loc-srv", "l", "127.0.0.1:11002", "IP address of location server with port")
+	rootCmd.PersistentFlags().BoolVarP(&mdnsOnLo, "mdns-on-lo", "", false, "Advertise status server on 'lo' interface")
+}

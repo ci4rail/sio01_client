@@ -19,9 +19,14 @@ import (
 	"github.com/hashicorp/mdns"
 )
 
-func (e *Eloc) startMdns(statusServerPort int) error {
+func (e *Eloc) startMdns(statusServerPort int, mdnsOnLo bool) error {
 	info := []string{"My awesome service"}
-	ips := []net.IP{[]byte{127, 0, 0, 1}} // TODO: Required for gitpod only???
+
+	var ips []net.IP
+	ips = nil
+	if mdnsOnLo {
+		ips = []net.IP{[]byte{127, 0, 0, 1}}
+	}
 	service, err := mdns.NewMDNSService(e.deviceID+"-eloc", "_io4edge-eloc._tcp", "", "", statusServerPort, ips, info)
 
 	if err != nil {
