@@ -27,7 +27,7 @@ var (
 	deviceID              string
 	statusServerPort      int
 	locationServerAddress string
-	mdnsOnLo              bool
+	mdnsIP                string
 )
 
 func main() {
@@ -42,7 +42,7 @@ var rootCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Printf("devsim version: %s\n", version.Version)
 
-		_, err := eloc.NewInstance(deviceID, statusServerPort, locationServerAddress, mdnsOnLo)
+		_, err := eloc.NewInstance(deviceID, statusServerPort, locationServerAddress, mdnsIP)
 
 		if err != nil {
 			log.Fatalf("Failed to create eloc instance: %s", err)
@@ -62,5 +62,5 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&deviceID, "dev-id", "d", "devsim", "device id to use")
 	rootCmd.PersistentFlags().IntVarP(&statusServerPort, "stat-port", "s", 10000, "TCP port to use for status server")
 	rootCmd.PersistentFlags().StringVarP(&locationServerAddress, "loc-srv", "l", "127.0.0.1:11002", "IP address of location server with port")
-	rootCmd.PersistentFlags().BoolVarP(&mdnsOnLo, "mdns-on-lo", "", false, "Advertise status server on 'lo' interface")
+	rootCmd.PersistentFlags().StringVarP(&mdnsIP, "mdns-ip", "", "", "IP address to advertise status server to")
 }

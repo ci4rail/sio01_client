@@ -14,18 +14,19 @@ limitations under the License.
 package eloc
 
 import (
+	"log"
 	"net"
 
 	"github.com/hashicorp/mdns"
 )
 
-func (e *Eloc) startMdns(statusServerPort int, mdnsOnLo bool) error {
+func (e *Eloc) startMdns(statusServerPort int, mdnsIP string) error {
 	info := []string{"My awesome service"}
 
 	var ips []net.IP
 	ips = nil
-	if mdnsOnLo {
-		ips = []net.IP{[]byte{127, 0, 0, 1}}
+	if mdnsIP != "" {
+		ips = append(ips, net.ParseIP(mdnsIP))
 	}
 	service, err := mdns.NewMDNSService(e.deviceID+"-eloc", "_io4edge-eloc._tcp", "", "", statusServerPort, ips, info)
 
@@ -33,6 +34,8 @@ func (e *Eloc) startMdns(statusServerPort int, mdnsOnLo bool) error {
 		return err
 	}
 	e.statusServerMdnsService = service
+
+	log.Printf("mdns advertisting service on IPs %v\n", service.IPs)
 
 	// Create the mDNS server
 	server, err := mdns.NewServer(&mdns.Config{Zone: service})

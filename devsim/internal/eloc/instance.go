@@ -30,12 +30,12 @@ type Eloc struct {
 }
 
 // NewInstance creates a new Easylocate simulator instance
-func NewInstance(deviceID string, statusServerPort int, locationServerAddress string, mdnsOnLo bool) (*Eloc, error) {
+func NewInstance(deviceID string, statusServerPort int, locationServerAddress string, mdnsIP string) (*Eloc, error) {
 	e := &Eloc{
 		deviceID: deviceID,
 		loc:      make(chan location),
 	}
-	err := e.startMdns(statusServerPort, mdnsOnLo)
+	err := e.startMdns(statusServerPort, mdnsIP)
 	if err != nil {
 		log.Printf("failed to start mdns: %s", err)
 		return nil, err
