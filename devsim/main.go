@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 Ci4Rail GmbH
+Copyright © 2022 Ci4Rail GmbH
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -31,7 +31,10 @@ var (
 )
 
 func main() {
-	execute()
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 }
 
 // rootCmd represents the base command when called without any subcommands
@@ -49,13 +52,6 @@ var rootCmd = &cobra.Command{
 		}
 		select {} // wait until abort
 	},
-}
-
-func execute() {
-	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
-	}
 }
 
 func init() {
