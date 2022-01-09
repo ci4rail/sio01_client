@@ -2,7 +2,6 @@
 
 """ Example that shows how to get the status of a SIO01 """
 
-import logging
 import sys
 import socket
 import struct
@@ -34,11 +33,21 @@ def send_request(s, id):
     s.sendall(hdr+data)
 
 
+def rcv_all(s, n):
+    remaining = n
+    buf = bytearray()
+    while remaining > 0:
+        data = s.recv(remaining)
+        buf.extend(data)
+        remaining -= len(data)
+    return buf
+
+
 def recv_response(s):
-    hdr = s.recv(6)
+    hdr = rcv_all(s, 6)
     if hdr[0:2] == b'\xfe\xed':
         len = struct.unpack('<L', hdr[2:6])[0]
-        proto_data = s.recv(len)
+        proto_data = rcv_all(s, len)
         stat = tracelet_status_pb2.StatusResponse()
         stat.ParseFromString(proto_data)
         return stat
