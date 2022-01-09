@@ -38,6 +38,8 @@ Where `device-id` is the id set in the SIO01 via the persistent parameter `devic
 Note: The machine executing `status_client.py` must be in the same network as the SIO01.
 
 # See also
+- [SIO01-Device-Simulator](README_DEVSIM.md): A SIO01 simulator
+
 - [io4edge-cli](https://github.com/ci4rail/io4edge-cli): Command line tool to manage io4edge devices, such as the SIO01. Important features are:
     - Identify the currently running firmware
     - Load new firmware
