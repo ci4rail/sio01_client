@@ -119,9 +119,9 @@ func (e *Eloc) locationGenerator() {
 			loc.x += stepX
 			loc.y += stepY
 
-			loc.lat = 4925.847168
-			loc.lon = 1104.263794
-			loc.alt = 0.0
+			loc.lat = 49.430786
+			loc.lon = 11.071189
+			loc.alt = 3.383333
 			loc.fix = 3
 			loc.pdop = 1.0
 			loc.hdop = 1.0
