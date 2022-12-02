@@ -21,7 +21,9 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             loc = self.read_fstream()
             print(
                 f'{loc.tracelet_id} {loc.receive_ts.ToDatetime()} {loc.x:.2f} {loc.y:.2f} {loc.z:.2f} '
-                f'cov: {loc.cov_xx:.2f} {loc.cov_xy:.2f} {loc.cov_yy:.2f} site:{loc.site_id} sign: {loc.location_signature}')
+                f'cov: {loc.cov_xx:.2f} {loc.cov_xy:.2f} {loc.cov_yy:.2f} site:{loc.site_id} sign: {loc.location_signature} '
+                f'lat: {loc.gnss_lat:.6f} lon: {loc.gnss_lon:.6f} alt: {loc.gnss_alt:.6f} '
+                f'fix: {loc.gnss_fix} hdop: {loc.gnss_hdop:.2f} vdop: {loc.gnss_vdop:.2f} pdop: {loc.gnss_pdop:.2f}')
 
         print('exit handler %s\n' % threading.current_thread().name)
 

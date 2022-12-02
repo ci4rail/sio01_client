@@ -30,6 +30,13 @@ type location struct {
 	x       float64
 	y       float64
 	z       float64
+	lat     float32
+	lon     float32
+	alt     float32
+	fix     int
+	pdop    float32
+	hdop    float32
+	vdop    float32
 }
 
 func (e *Eloc) locationClient(locationServerAddress string) error {
@@ -57,6 +64,13 @@ func (e *Eloc) locationClient(locationServerAddress string) error {
 						CovXx:             11.2,
 						CovXy:             22.4,
 						CovYy:             -33,
+						GnssLat:           loc.lat,
+						GnssLon:           loc.lon,
+						GnssAlt:           loc.alt,
+						GnssFix:           uint32(loc.fix),
+						GnssPdop:          loc.pdop,
+						GnssHdop:          loc.hdop,
+						GnssVdop:          loc.vdop,
 					}
 					err := ch.WriteMessage(m)
 					if err != nil {
@@ -104,6 +118,14 @@ func (e *Eloc) locationGenerator() {
 			}
 			loc.x += stepX
 			loc.y += stepY
+
+			loc.lat = 49.430786
+			loc.lon = 11.071189
+			loc.alt = 3.383333
+			loc.fix = 3
+			loc.pdop = 1.0
+			loc.hdop = 1.0
+			loc.vdop = 1.0
 
 			time.Sleep(1000 * time.Millisecond)
 		}

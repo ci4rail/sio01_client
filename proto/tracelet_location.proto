@@ -40,4 +40,15 @@ message LocationReport {
     double cov_xx = 8;
     double cov_xy = 9;
     double cov_yy = 10;
+
+    // GNSS Position
+    float  gnss_lat = 11;
+    float  gnss_lon = 12;
+    float  gnss_alt = 13;
+    // GNSS Position Precision
+    float gnss_pdop = 14;
+    float gnss_hdop = 15;
+    float gnss_vdop = 16;
+    // GNSS Position Fix
+    uint32 gnss_fix = 17;
 }
